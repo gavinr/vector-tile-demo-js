@@ -12,7 +12,6 @@ require([
   "esri/layers/VectorTileLayer",
 ], function(lang, query, win, domClass, Memory,  ObjectStore, FilteringSelect, Map, MapView, Extent, VectorTileLayer) {
 
-  var singleColorStyle = null;
   var timeZoneStyle = {
     "line-color": {
       "property": "TZ_Delta",
@@ -123,7 +122,7 @@ require([
 
   var colorSelector = new ColorPicker({
     appendTo: document.getElementById("colorSelector"),
-    color: colorMap.red,
+    color: colorMap.blue,
     renderCallback: function(color,action){
 
       var rgb = color.rgb;
@@ -157,48 +156,29 @@ require([
   });
 
   var setVectorColor = function(tileLayer,colorStr){
+    var singleColorStyle = tileLayer.getPaintProperties("Flight Routes");
+    singleColorStyle["line-color"] = colorStr;
+    tileLayer.setPaintProperties("Flight Routes", singleColorStyle);
 
-    var tileStyle = lang.clone(tileLayer.get("currentStyleInfo.style"));
-    if (tileStyle !== undefined){
-      var tileLayerStyle = tileStyle.layers[0];
-
-      tileLayerStyle.paint["line-color"] = colorStr;
-
-      singleColorStyle = tileLayerStyle.paint;
-
-      tileStyle.layers[0] = tileLayerStyle;
-
-      tileLayer.loadStyle(tileStyle);
-    }
   };
 
-  var setFilter = function(tileLayer,airport){
-
-
+  var setFilter = function(tileLayer,airport,colorStr){
     if (airport && airport.length > 0){
-      var tileStyle = lang.clone(tileLayer.get("currentStyleInfo.style"));
-      var tileLayerStyle = tileStyle.layers[0];
+      var filterStyle = tileLayer.getStyleLayer("Flight Routes");
 
       if (airport === "ALL_AIRPORTS"){
         query(".legend")[0].style.height = "0";
-
-        if (singleColorStyle){
-          tileLayerStyle.paint = singleColorStyle;
-        } else {
-          tileLayer.loadStyle("./vectorStyle.json")
-          return;
-        }
-
-        delete tileLayerStyle.filter;
+        delete filterStyle.filter;
+        filterStyle.paint["line-color"] = colorMap.blue;
+        filterStyle.paint["line-width"] = 1;
+        
       } else {
         query(".legend")[0].style.height = "30px";
-        tileLayerStyle.filter = ["==", "Origin", airport];
-        tileLayerStyle.paint = timeZoneStyle;
+        filterStyle.filter = ["==", "Origin", airport];
+        filterStyle.paint = timeZoneStyle;
+
       }
-
-      tileStyle.layers[0] = tileLayerStyle;
-
-      tileLayer.loadStyle(tileStyle);
+      tileLayer.setStyleLayer(filterStyle);
     }
   }
 
