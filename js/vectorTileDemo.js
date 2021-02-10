@@ -156,7 +156,7 @@ require([
   });
 
   var setVectorColor = function(tileLayer,colorStr){
-    var singleColorStyle = tileLayer.getPaintProperties("Flight Routes");
+    const singleColorStyle = tileLayer.getPaintProperties("Flight Routes");
     singleColorStyle["line-color"] = colorStr;
     tileLayer.setPaintProperties("Flight Routes", singleColorStyle);
 
@@ -164,7 +164,7 @@ require([
 
   var setFilter = function(tileLayer,airport,colorStr){
     if (airport && airport.length > 0){
-      var filterStyle = tileLayer.getStyleLayer("Flight Routes");
+      const filterStyle = tileLayer.getStyleLayer("Flight Routes");
 
       if (airport === "ALL_AIRPORTS"){
         query(".legend")[0].style.height = "0";
